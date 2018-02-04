@@ -4,7 +4,6 @@ import static com.amitinside.maven.fatjar.plugin.Configurer.Params.*;
 
 import java.io.File;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.BuildPluginManager;
@@ -16,7 +15,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import com.google.common.collect.Lists;
-import com.google.common.io.Files;
 
 @Mojo(name = "makefat")
 public class FatJarMakerMojo extends AbstractMojo {
@@ -33,14 +31,11 @@ public class FatJarMakerMojo extends AbstractMojo {
     @Parameter(property = "mavenLocation", required = false)
     private String mavenLocation;
 
-    @Parameter(property = "pomLocation", required = true)
-    private String pomLocation;
-
     @Parameter(property = "bundleSymbolicName", required = true)
     private String bundleSymbolicName;
 
-    @Parameter(property = "fileName", required = false)
-    private String fileName;
+    @Parameter(property = "targetFilename", required = false)
+    private String targetFilename;
 
     @Parameter(property = "extensionsToUnarchive", required = false)
     private String[] extensionsToUnarchive;
@@ -77,7 +72,6 @@ public class FatJarMakerMojo extends AbstractMojo {
                     .update();
             LocalMavenRepositoryBrowser.newInstance().copyArtefact();
             FatJarBuilder.newInstance().build();
-            FileUtils.deleteDirectory(sourceDirectory);
         } catch (final Exception e) {
             throw new MojoFailureException(e.getMessage());
         }
@@ -88,15 +82,16 @@ public class FatJarMakerMojo extends AbstractMojo {
     }
 
     private void createSourceDirectory() {
-        sourceDirectory = Files.createTempDir();
+        final String userDir = System.getProperty("user.dir");
+        sourceDirectory = new File(userDir + File.separator + "fatjar_build");
     }
 
     private void storeConfugurationParameters() {
         final Configurer configurer = Configurer.INSTANCE;
         configurer.put(MAVEN_LOCATION, mavenLocation);
-        configurer.put(POM_LOCATION, pomLocation);
+        configurer.put(POM_LOCATION, mavenProject.getFile().getPath());
         configurer.put(BUNDLE_SYMBOLIC_NAME, bundleSymbolicName);
-        configurer.put(FILE_NAME, fileName);
+        configurer.put(TARGET_FILENAME, targetFilename);
         configurer.put(EXTENSION_TO_UNARCHIVE, extensionsToUnarchive);
         configurer.put(SOURCE_DIRECTORY, sourceDirectory);
         configurer.put(TARGET_DIRECTORY, targetDirectory);

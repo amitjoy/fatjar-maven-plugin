@@ -19,7 +19,6 @@ import com.google.common.collect.Lists;
 public final class MavenVersionsUpdater {
 
     private final String mavenHome;
-    private final String pomLocation;
     private final boolean shouldUpdateVersions;
     private final MavenProject mavenProject;
     private final MavenSession mavenSession;
@@ -30,7 +29,6 @@ public final class MavenVersionsUpdater {
     private MavenVersionsUpdater(final MavenProject mavenProject, final MavenSession mavenSession,
             final BuildPluginManager pluginManager, final List<String> extensionsToUnarchive) {
         mavenHome = Configurer.INSTANCE.getAsString(MAVEN_LOCATION);
-        pomLocation = Configurer.INSTANCE.getAsString(POM_LOCATION);
         sourceLocation = (File) Configurer.INSTANCE.get(SOURCE_DIRECTORY);
         final String needUpdate = Configurer.INSTANCE.getAsString(UPDATE_VERSION);
         shouldUpdateVersions = Boolean.valueOf(needUpdate);
@@ -40,7 +38,6 @@ public final class MavenVersionsUpdater {
         this.extensionsToUnarchive = extensionsToUnarchive;
 
         checkArgument(!mavenHome.trim().isEmpty(), "Maven Home Location cannot be empty");
-        checkArgument(!pomLocation.trim().isEmpty(), "POM Location cannot be empty");
     }
 
     public static MavenVersionsUpdater newInstance(final MavenProject mavenProject, final MavenSession mavenSession,

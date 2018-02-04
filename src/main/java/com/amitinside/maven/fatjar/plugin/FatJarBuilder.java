@@ -40,7 +40,7 @@ public final class FatJarBuilder {
 
     private FatJarBuilder() {
         bsn = Configurer.INSTANCE.getAsString(BUNDLE_SYMBOLIC_NAME);
-        fileName = Configurer.INSTANCE.getAsString(FILE_NAME);
+        fileName = Configurer.INSTANCE.getAsString(TARGET_FILENAME);
         sourceLocation = (File) Configurer.INSTANCE.get(SOURCE_DIRECTORY);
         extensionsToUnarchive = (String[]) Configurer.INSTANCE.get(EXTENSION_TO_UNARCHIVE);
         targetLocation = Configurer.INSTANCE.getAsString(Params.TARGET_DIRECTORY);
@@ -60,6 +60,7 @@ public final class FatJarBuilder {
         buildBndConfigFile();
         buildWithBnd();
         moveToTargetDirectory();
+        deleteSourceDirectory();
     }
 
     private void extractArchives() throws IOException {
@@ -150,6 +151,10 @@ public final class FatJarBuilder {
         if (oldFile.renameTo(newFile)) {
             FileUtils.copyFileToDirectory(newFile, destFile, true);
         }
+    }
+
+    private void deleteSourceDirectory() throws IOException {
+        FileUtils.deleteDirectory(sourceLocation);
     }
 
     private void createTargetDirectory() throws IOException {
