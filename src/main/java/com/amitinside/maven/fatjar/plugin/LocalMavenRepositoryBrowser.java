@@ -10,7 +10,6 @@
 package com.amitinside.maven.fatjar.plugin;
 
 import static com.amitinside.maven.fatjar.plugin.Configurer.Params.*;
-import static com.amitinside.maven.fatjar.plugin.Constants.MAVEN_LOCAL_REPOSITORY;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.io.File.separator;
 import static org.apache.commons.io.FileUtils.copyFileToDirectory;
@@ -31,6 +30,8 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import com.google.common.collect.Maps;
 
 public final class LocalMavenRepositoryBrowser {
+
+    private static final String MAVEN_LOCAL_REPOSITORY = ".m2" + separator + "repository";
 
     private final String pomLocation;
     private final File sourceLocation;

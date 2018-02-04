@@ -42,22 +42,25 @@ public class FatJarMakerMojo extends AbstractMojo {
     @Component
     private BuildPluginManager pluginManager;
 
-    @Parameter(property = "mavenLocation", required = false)
+    @Parameter(required = false)
     private String mavenLocation;
 
-    @Parameter(property = "bundleSymbolicName", required = true)
+    @Parameter(required = true)
     private String bundleSymbolicName;
 
-    @Parameter(property = "targetFilename", required = false)
+    @Parameter(required = true)
+    private String bundleVersion;
+
+    @Parameter(required = false)
     private String targetFilename;
 
-    @Parameter(property = "extensionsToUnarchive", required = false)
+    @Parameter(required = false)
     private String[] extensionsToUnarchive;
 
-    @Parameter(property = "targetDirectory", required = true)
+    @Parameter(required = true)
     private String targetDirectory;
 
-    @Parameter(property = "updateDependencyVersions", required = false, defaultValue = "true")
+    @Parameter(required = false, defaultValue = "true")
     private String updateDependencyVersions;
 
     private File sourceDirectory;
@@ -86,10 +89,9 @@ public class FatJarMakerMojo extends AbstractMojo {
                     .newInstance(mavenProject, mavenSession, pluginManager, Lists.newArrayList(extensionsToUnarchive))
                     .update();
             LocalMavenRepositoryBrowser.newInstance().copyArtefact();
-            FatJarBuilder.newInstance(mavenProject, mavenSession, pluginManager).build();
+            FatJarBuilder.newInstance(mavenProject).build();
         } catch (final Exception e) {
-            throw new RuntimeException(e);
-            // throw new MojoFailureException(e.getMessage());
+            throw new MojoFailureException(e.getMessage());
         }
     }
 
@@ -124,6 +126,7 @@ public class FatJarMakerMojo extends AbstractMojo {
         configurer.put(MAVEN_LOCATION, mavenLocation);
         configurer.put(POM_LOCATION, mavenProject.getFile().getPath());
         configurer.put(BUNDLE_SYMBOLIC_NAME, bundleSymbolicName);
+        configurer.put(BUNDLE_VERSION, bundleVersion);
         configurer.put(TARGET_FILENAME, targetFilename);
         configurer.put(EXTENSION_TO_UNARCHIVE, extensionsToUnarchive);
         configurer.put(SOURCE_DIRECTORY, sourceDirectory);

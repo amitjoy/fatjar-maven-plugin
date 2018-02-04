@@ -21,6 +21,7 @@ public enum Configurer {
         MAVEN_LOCATION,
         POM_LOCATION,
         BUNDLE_SYMBOLIC_NAME,
+        BUNDLE_VERSION,
         EXTENSION_TO_UNARCHIVE,
         SOURCE_DIRECTORY,
         TARGET_FILENAME,
