@@ -10,31 +10,31 @@
 package com.amitinside.maven.fatjar.plugin;
 
 import static com.amitinside.maven.fatjar.plugin.Configurer.Params.*;
-import static com.amitinside.maven.fatjar.plugin.Constants.BNDLIB;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.io.File.separator;
 import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.joining;
 import static org.apache.commons.io.FileUtils.forceMkdir;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.*;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.BuildPluginManager;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.project.MavenProject;
 
 import com.amitinside.maven.fatjar.plugin.Configurer.Params;
 
@@ -44,33 +44,47 @@ import net.lingala.zip4j.exception.ZipException;
 public final class FatJarBuilder {
 
     private final File sourceLocation;
+    private final String targetClassesLocation;
     private final String bndFile;
     private final String bsn;
     private final String[] extensionsToUnarchive;
     private final String targetLocation;
+    private final MavenProject mavenProject;
+    private final MavenSession mavenSession;
+    private final BuildPluginManager pluginManager;
     private String fileName;
 
-    private FatJarBuilder() {
+    private FatJarBuilder(final MavenProject mavenProject, final MavenSession mavenSession,
+            final BuildPluginManager pluginManager) {
         bsn = Configurer.INSTANCE.getAsString(BUNDLE_SYMBOLIC_NAME);
         fileName = Configurer.INSTANCE.getAsString(TARGET_FILENAME);
         sourceLocation = (File) Configurer.INSTANCE.get(SOURCE_DIRECTORY);
         extensionsToUnarchive = (String[]) Configurer.INSTANCE.get(EXTENSION_TO_UNARCHIVE);
         targetLocation = Configurer.INSTANCE.getAsString(Params.TARGET_DIRECTORY);
         bndFile = sourceLocation + separator + "temp.bnd";
+        this.mavenProject = mavenProject;
+        this.mavenSession = mavenSession;
+        this.pluginManager = pluginManager;
+        targetClassesLocation = sourceLocation.getParent() + separator + "target/";
 
         checkArgument(!bsn.trim().isEmpty(), "Bundle Symbolic Name cannot be empty");
         checkArgument(!targetLocation.trim().isEmpty(), "Target Directory cannot be empty");
     }
 
-    public static FatJarBuilder newInstance() {
-        return new FatJarBuilder();
+    public static FatJarBuilder newInstance(final MavenProject mavenProject, final MavenSession mavenSession,
+            final BuildPluginManager pluginManager) {
+        return new FatJarBuilder(mavenProject, mavenSession, pluginManager);
     }
 
     public void build() throws Exception {
         extractArchives();
         buildBndConfigFile();
-        buildWithBnd();
+        final String path = sourceLocation.getPath();
+        executeBndMojo(path, path);
+        final String manifestLoc = targetClassesLocation + "classes/META-INF/MANIFEST.MF";
+        executeJarMojo(manifestLoc);
         moveToTargetDirectory();
+        // deleteTempDirectories();
     }
 
     private void extractArchives() throws IOException {
@@ -100,7 +114,7 @@ public final class FatJarBuilder {
             final String classpath = paths.filter(Files::isRegularFile)
                                     .map(Path::toFile)
                                     .filter(f -> f.getName().endsWith(".jar"))
-                                    .map(File::getName)
+                                    .map(File::getPath)
                                     .collect(joining( ", " ));
             //@formatter:on
             final StringBuilder contentBuilder = new StringBuilder();
@@ -121,55 +135,75 @@ public final class FatJarBuilder {
         }
     }
 
-    private void buildWithBnd() throws Exception {
-        final String path = exportResource(separator + BNDLIB);
-
-        final Stream<String> params = Stream.of("java", "-jar", path, bndFile);
-        final List<String> commandParams = params.collect(toList());
-        final ProcessBuilder processBuilder = new ProcessBuilder(commandParams);
-        final Process process = processBuilder.start();
-        if (!process.waitFor(10, SECONDS)) {
-            process.destroy();
-        }
-    }
-
-    private static String exportResource(final String resourceName) throws Exception {
-        String jarFolder;
-        try (final InputStream stream = FatJarBuilder.class.getResourceAsStream(resourceName)) {
-            if (stream == null) {
-                throw new NullPointerException("Cannot get resource \"" + resourceName + "\" from JAR file.");
-            }
-            int readBytes;
-            final byte[] buffer = new byte[4096];
-            jarFolder = new File(
-                    FatJarBuilder.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath())
-                            .getParentFile().getPath().replace('\\', '/');
-            try (final OutputStream resStreamOut = new FileOutputStream(jarFolder + resourceName)) {
-                while ((readBytes = stream.read(buffer)) > 0) {
-                    resStreamOut.write(buffer, 0, readBytes);
-                }
-            }
-        } catch (final Exception ex) {
-            throw ex;
-        }
-
-        return jarFolder + resourceName;
-    }
-
     private void moveToTargetDirectory() throws IOException {
         createTargetDirectory();
-        final String name = bsn + "-0.0.0.jar";
+
+        final String artifactId = mavenProject.getArtifactId();
+        final String version = mavenProject.getVersion();
+
+        final String name = artifactId + "-" + version + ".jar";
+
         if (fileName.isEmpty()) {
             fileName = name;
         }
-        final File oldFile = FileUtils.getFile(sourceLocation + separator + name);
+        final File oldFile = FileUtils.getFile(targetClassesLocation + separator + name);
         final File newFile = FileUtils.getFile(targetLocation + separator + fileName);
         Files.move(Paths.get(oldFile.toURI()), Paths.get(newFile.toURI()), ATOMIC_MOVE);
+    }
+
+    private void deleteTempDirectories() throws IOException {
+        FileUtils.deleteDirectory(new File(targetClassesLocation));
+        FileUtils.deleteDirectory(sourceLocation);
     }
 
     private void createTargetDirectory() throws IOException {
         final File targetDir = new File(targetLocation);
         forceMkdir(targetDir);
+    }
+
+    private void executeBndMojo(final String sourceDir, final String targetDir) throws MojoExecutionException {
+        //@formatter:off
+        executeMojo(
+                plugin(
+                        groupId("biz.aQute.bnd"),
+                        artifactId("bnd-maven-plugin"),
+                        version("3.5.0")
+                        ),
+                goal("bnd-process"),
+                configuration(
+                        element(name("bndfile"), bndFile),
+                        element(name("sourceDir"), sourceDir),
+                        element(name("targetDir"), targetDir)
+                        ),
+                executionEnvironment(
+                        mavenProject,
+                        mavenSession,
+                        pluginManager
+                        )
+                );
+        //@formatter:on
+    }
+
+    private void executeJarMojo(final String manifestLoc) throws MojoExecutionException {
+        //@formatter:off
+        executeMojo(
+                plugin(
+                        groupId("org.apache.maven.plugins"),
+                        artifactId("maven-jar-plugin"),
+                        version("3.0.2")
+                        ),
+                goal("jar"),
+                configuration(
+                        element(name("archive"),
+                        element(name("manifestFile"), manifestLoc))
+                            ),
+                executionEnvironment(
+                        mavenProject,
+                        mavenSession,
+                        pluginManager
+                        )
+                );
+        //@formatter:on
     }
 
 }

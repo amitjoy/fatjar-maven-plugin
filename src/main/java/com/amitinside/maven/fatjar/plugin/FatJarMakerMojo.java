@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.BuildPluginManager;
@@ -87,10 +86,10 @@ public class FatJarMakerMojo extends AbstractMojo {
                     .newInstance(mavenProject, mavenSession, pluginManager, Lists.newArrayList(extensionsToUnarchive))
                     .update();
             LocalMavenRepositoryBrowser.newInstance().copyArtefact();
-            FatJarBuilder.newInstance().build();
-            FileUtils.deleteDirectory(sourceDirectory);
+            FatJarBuilder.newInstance(mavenProject, mavenSession, pluginManager).build();
         } catch (final Exception e) {
-            throw new MojoFailureException(e.getMessage());
+            throw new RuntimeException(e);
+            // throw new MojoFailureException(e.getMessage());
         }
     }
 
