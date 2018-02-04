@@ -5,6 +5,7 @@ import static com.amitinside.maven.fatjar.plugin.Constants.BNDLIB;
 import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.io.File.separator;
+import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
 import static java.util.stream.Collectors.*;
 import static org.apache.commons.io.FileUtils.forceMkdir;
 
@@ -18,6 +19,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -60,7 +62,6 @@ public final class FatJarBuilder {
         buildBndConfigFile();
         buildWithBnd();
         moveToTargetDirectory();
-        deleteSourceDirectory();
     }
 
     private void extractArchives() throws IOException {
@@ -146,15 +147,8 @@ public final class FatJarBuilder {
     private void moveToTargetDirectory() throws IOException {
         createTargetDirectory();
         final File oldFile = FileUtils.getFile(sourceLocation + separator + bsn + "-0.0.0.jar");
-        final File newFile = FileUtils.getFile(sourceLocation + separator + fileName);
-        final File destFile = FileUtils.getFile(targetLocation);
-        if (oldFile.renameTo(newFile)) {
-            FileUtils.copyFileToDirectory(newFile, destFile, true);
-        }
-    }
-
-    private void deleteSourceDirectory() throws IOException {
-        FileUtils.deleteDirectory(sourceLocation);
+        final File newFile = FileUtils.getFile(targetLocation + separator + fileName);
+        Files.move(Paths.get(oldFile.toURI()), Paths.get(newFile.toURI()), ATOMIC_MOVE);
     }
 
     private void createTargetDirectory() throws IOException {

@@ -3,7 +3,9 @@ package com.amitinside.maven.fatjar.plugin;
 import static com.amitinside.maven.fatjar.plugin.Configurer.Params.*;
 
 import java.io.File;
+import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.BuildPluginManager;
@@ -65,6 +67,7 @@ public class FatJarMakerMojo extends AbstractMojo {
         }
         mavenLocation = mavenHome;
         try {
+            resolveTargetLocation();
             createSourceDirectory();
             storeConfugurationParameters();
             MavenVersionsUpdater
@@ -72,13 +75,18 @@ public class FatJarMakerMojo extends AbstractMojo {
                     .update();
             LocalMavenRepositoryBrowser.newInstance().copyArtefact();
             FatJarBuilder.newInstance().build();
+            FileUtils.deleteDirectory(sourceDirectory);
         } catch (final Exception e) {
             throw new MojoFailureException(e.getMessage());
         }
     }
 
-    private void resolveDirectoryPaths() {
-        // TODO User can use maven variables or relative path
+    private void resolveTargetLocation() throws IOException {
+        File file = new File(targetDirectory);
+        if (!file.isAbsolute()) {
+            file = new File(mavenProject.getBasedir(), targetDirectory);
+        }
+        targetDirectory = file.getCanonicalPath();
     }
 
     private void createSourceDirectory() {
