@@ -1,9 +1,12 @@
 package com.amitinside.maven.fatjar.plugin;
 
 import static com.amitinside.maven.fatjar.plugin.Configurer.Params.*;
+import static com.google.common.base.Preconditions.checkArgument;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.execution.MavenSession;
@@ -17,6 +20,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 @Mojo(name = "makefat")
 public class FatJarMakerMojo extends AbstractMojo {
@@ -82,11 +86,24 @@ public class FatJarMakerMojo extends AbstractMojo {
     }
 
     private void resolveTargetLocation() throws IOException {
+        targetDirectory = resolveProperty();
         File file = new File(targetDirectory);
         if (!file.isAbsolute()) {
             file = new File(mavenProject.getBasedir(), targetDirectory);
         }
         targetDirectory = file.getCanonicalPath();
+    }
+
+    private String resolveProperty() {
+        checkArgument(!targetDirectory.trim().isEmpty(), "Target Directory cannot be empty");
+
+        if (targetDirectory.indexOf('$') == -1) {
+            return targetDirectory;
+        }
+        final Properties properties = mavenProject.getProperties();
+        final Map<String, String> props = Maps.fromProperties(properties);
+        final String parsedProperty = targetDirectory.substring(2, targetDirectory.length() - 1);
+        return props.get(parsedProperty);
     }
 
     private void createSourceDirectory() {

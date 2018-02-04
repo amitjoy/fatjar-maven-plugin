@@ -6,6 +6,7 @@ import static com.google.common.base.Charsets.UTF_8;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.io.File.separator;
 import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.*;
 import static org.apache.commons.io.FileUtils.forceMkdir;
 
@@ -117,8 +118,11 @@ public final class FatJarBuilder {
 
         final Stream<String> params = Stream.of("java", "-jar", path, bndFile);
         final List<String> commandParams = params.collect(toList());
-        final ProcessBuilder process = new ProcessBuilder(commandParams);
-        process.start();
+        final ProcessBuilder processBuilder = new ProcessBuilder(commandParams);
+        final Process process = processBuilder.start();
+        if (!process.waitFor(10, SECONDS)) {
+            process.destroy();
+        }
     }
 
     private static String exportResource(final String resourceName) throws Exception {
