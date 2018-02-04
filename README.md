@@ -44,7 +44,8 @@ This project is licensed under EPL-1.0 [![License](http://img.shields.io/badge/l
   <artifactId>fatjar-maven-plugin</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <configuration>
-    <bundleSymbolicName>com.mybundle.mybsn</bundleSymbolicName>
+    <bundleSymbolicName>${bundle.symbolic.name}</bundleSymbolicName>
+    <bundleVersion>${bundle.version}</bundleVersion>
     <extensionsToUnarchive>
         <param>zip</param>
         <param>tar</param>
