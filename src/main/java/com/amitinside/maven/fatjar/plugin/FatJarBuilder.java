@@ -18,7 +18,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -32,7 +31,7 @@ import net.lingala.zip4j.exception.ZipException;
 
 public final class FatJarBuilder {
 
-    private final String sourceLocation;
+    private final File sourceLocation;
     private final String fileName;
     private final String bndFile;
     private final String bsn;
@@ -42,14 +41,13 @@ public final class FatJarBuilder {
     private FatJarBuilder() {
         bsn = Configurer.INSTANCE.getAsString(BUNDLE_SYMBOLIC_NAME);
         fileName = Configurer.INSTANCE.getAsString(FILE_NAME);
-        sourceLocation = Configurer.INSTANCE.getAsString(SOURCE_DIRECTORY);
+        sourceLocation = (File) Configurer.INSTANCE.get(SOURCE_DIRECTORY);
         extensionsToUnarchive = (String[]) Configurer.INSTANCE.get(EXTENSION_TO_UNARCHIVE);
         targetLocation = Configurer.INSTANCE.getAsString(Params.TARGET_DIRECTORY);
         bndFile = sourceLocation + separator + "temp.bnd";
 
         checkArgument(!bsn.trim().isEmpty(), "Bundle Symbolic Name cannot be empty");
         checkArgument(!fileName.trim().isEmpty(), "File Name cannot be empty");
-        checkArgument(!sourceLocation.trim().isEmpty(), "Source Directory cannot be empty");
         checkArgument(!targetLocation.trim().isEmpty(), "Target Directory cannot be empty");
     }
 
@@ -65,7 +63,7 @@ public final class FatJarBuilder {
     }
 
     private void extractArchives() throws IOException {
-        try (Stream<Path> paths = Files.walk(Paths.get(sourceLocation))) {
+        try (Stream<Path> paths = Files.walk(sourceLocation.toPath())) {
             //@formatter:off
             paths.filter(Files::isRegularFile)
                  .map(Path::toFile)
@@ -79,14 +77,14 @@ public final class FatJarBuilder {
     private void extract(final File file) {
         try {
             final ZipFile zipFile = new ZipFile(file);
-            zipFile.extractAll(sourceLocation);
+            zipFile.extractAll(sourceLocation.getPath());
         } catch (final ZipException e) {
             // suppress due to the usage in stream
         }
     }
 
     private void buildBndConfigFile() throws IOException {
-        try (Stream<Path> paths = Files.walk(Paths.get(sourceLocation))) {
+        try (Stream<Path> paths = Files.walk(sourceLocation.toPath())) {
             //@formatter:off
             final String classpath = paths.filter(Files::isRegularFile)
                                     .map(Path::toFile)
@@ -150,23 +148,13 @@ public final class FatJarBuilder {
         final File newFile = FileUtils.getFile(sourceLocation + separator + fileName);
         final File destFile = FileUtils.getFile(targetLocation);
         if (oldFile.renameTo(newFile)) {
-            moveFile(newFile, destFile);
+            FileUtils.copyFileToDirectory(newFile, destFile, true);
         }
     }
 
     private void createTargetDirectory() throws IOException {
         final File targetDir = new File(targetLocation);
         forceMkdir(targetDir);
-    }
-
-    public boolean moveFile(final File origfile, final File destfile) throws IOException {
-        final boolean fileMoved = false;
-        try {
-            FileUtils.copyFileToDirectory(origfile, new File(destfile.getParent()), true);
-        } catch (final IOException e) {
-            throw e;
-        }
-        return fileMoved;
     }
 
 }

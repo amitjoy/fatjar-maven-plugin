@@ -24,17 +24,16 @@ import com.google.common.collect.Maps;
 public final class LocalMavenRepositoryBrowser {
 
     private final String pomLocation;
-    private final String sourceLocation;
+    private final File sourceLocation;
     private final List<String> extensionsToUnarchive;
 
     private LocalMavenRepositoryBrowser() {
         pomLocation = Configurer.INSTANCE.getAsString(POM_LOCATION);
-        sourceLocation = Configurer.INSTANCE.getAsString(SOURCE_DIRECTORY);
+        sourceLocation = (File) Configurer.INSTANCE.get(SOURCE_DIRECTORY);
         final String[] extensions = (String[]) Configurer.INSTANCE.get(EXTENSION_TO_UNARCHIVE);
         extensionsToUnarchive = Arrays.asList(extensions);
 
         checkArgument(!pomLocation.trim().isEmpty(), "POM Location cannot be empty");
-        checkArgument(!sourceLocation.trim().isEmpty(), "Source Directory cannot be empty");
     }
 
     public static LocalMavenRepositoryBrowser newInstance() {
@@ -49,7 +48,7 @@ public final class LocalMavenRepositoryBrowser {
             final String type = dep.getType();
             if (!extensionsToUnarchive.contains(type)) {
                 final File dependency = getResource(model, dep);
-                copyFileToDirectory(dependency, new File(sourceLocation));
+                copyFileToDirectory(dependency, sourceLocation);
             }
         }
     }

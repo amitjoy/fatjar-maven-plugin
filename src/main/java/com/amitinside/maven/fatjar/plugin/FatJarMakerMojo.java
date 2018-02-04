@@ -1,19 +1,34 @@
 package com.amitinside.maven.fatjar.plugin;
 
 import static com.amitinside.maven.fatjar.plugin.Configurer.Params.*;
-import static org.apache.commons.io.FileUtils.*;
 
 import java.io.File;
-import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+
+import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 
 @Mojo(name = "makefat")
 public class FatJarMakerMojo extends AbstractMojo {
+
+    @Component
+    private MavenProject mavenProject;
+
+    @Component
+    private MavenSession mavenSession;
+
+    @Component
+    private BuildPluginManager pluginManager;
 
     @Parameter(property = "mavenLocation", required = false)
     private String mavenLocation;
@@ -30,14 +45,13 @@ public class FatJarMakerMojo extends AbstractMojo {
     @Parameter(property = "extensionsToUnarchive", required = false)
     private String[] extensionsToUnarchive;
 
-    @Parameter(property = "sourceDirectory", required = true)
-    private String sourceDirectory;
-
     @Parameter(property = "targetDirectory", required = true)
     private String targetDirectory;
 
     @Parameter(property = "updateDependencyVersions", required = false, defaultValue = "true")
     private String updateDependencyVersions;
+
+    private File sourceDirectory;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -55,21 +69,26 @@ public class FatJarMakerMojo extends AbstractMojo {
             }
         }
         mavenLocation = mavenHome;
-        storeConfugurationParameters();
         try {
-            MavenVersionsUpdater.newInstance().update();
+            createSourceDirectory();
+            storeConfugurationParameters();
+            MavenVersionsUpdater
+                    .newInstance(mavenProject, mavenSession, pluginManager, Lists.newArrayList(extensionsToUnarchive))
+                    .update();
             LocalMavenRepositoryBrowser.newInstance().copyArtefact();
             FatJarBuilder.newInstance().build();
-            createSourceDirectory();
-            deleteDirectory(new File(sourceDirectory));
+            FileUtils.deleteDirectory(sourceDirectory);
         } catch (final Exception e) {
             throw new MojoFailureException(e.getMessage());
         }
     }
 
-    private void createSourceDirectory() throws IOException {
-        final File sourceDir = new File(sourceDirectory);
-        forceMkdir(sourceDir);
+    private void resolveDirectoryPaths() {
+        // TODO User can use maven variables or relative path
+    }
+
+    private void createSourceDirectory() {
+        sourceDirectory = Files.createTempDir();
     }
 
     private void storeConfugurationParameters() {
