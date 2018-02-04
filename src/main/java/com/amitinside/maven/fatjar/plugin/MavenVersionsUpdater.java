@@ -54,14 +54,14 @@ public final class MavenVersionsUpdater {
         return new MavenVersionsUpdater(mavenProject, mavenSession, pluginManager, extensionsToUnarchive);
     }
 
-    public void update() throws Exception {
+    public void update() throws MojoExecutionException {
         if (shouldUpdateVersions) {
             executeVersionsMojo();
         }
         executeDependencyMojo();
     }
 
-    private List<Dependency> getArtefactsToUnarchive() throws Exception {
+    private List<Dependency> getArtefactsToUnarchive() {
         final List<Dependency> deps = Lists.newArrayList();
         for (final Dependency dep : mavenProject.getModel().getDependencies()) {
             final String type = dep.getType();
@@ -91,7 +91,7 @@ public final class MavenVersionsUpdater {
         return elements.toArray(new Element[elements.size()]);
     }
 
-    private Element[] convertToArtifactItems() throws Exception {
+    private Element[] convertToArtifactItems() {
         final List<Element> artifactItems = Lists.newArrayList();
         for (final Dependency dep : getArtefactsToUnarchive()) {
             final Element artifactItem = element(name("artifactItem"), convertToElement(dep));
@@ -100,7 +100,7 @@ public final class MavenVersionsUpdater {
         return artifactItems.toArray(new Element[artifactItems.size()]);
     }
 
-    private void executeDependencyMojo() throws Exception {
+    private void executeDependencyMojo() throws MojoExecutionException {
         //@formatter:off
         executeMojo(
                 plugin(

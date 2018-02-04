@@ -146,7 +146,7 @@ public final class FatJarBuilder {
         }
     }
 
-    private File loadProperties(final Builder builder, final MavenProject bndProject) throws Exception {
+    private File loadProperties(final Builder builder, final MavenProject bndProject) throws IOException {
         final File baseDir = bndProject.getBasedir();
         if (baseDir != null) {
             final File bndfile = new File(bndFile);
