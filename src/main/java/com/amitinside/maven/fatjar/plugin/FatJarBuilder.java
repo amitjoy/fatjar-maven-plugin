@@ -35,11 +35,11 @@ import net.lingala.zip4j.exception.ZipException;
 public final class FatJarBuilder {
 
     private final File sourceLocation;
-    private final String fileName;
     private final String bndFile;
     private final String bsn;
     private final String[] extensionsToUnarchive;
     private final String targetLocation;
+    private String fileName;
 
     private FatJarBuilder() {
         bsn = Configurer.INSTANCE.getAsString(BUNDLE_SYMBOLIC_NAME);
@@ -50,7 +50,6 @@ public final class FatJarBuilder {
         bndFile = sourceLocation + separator + "temp.bnd";
 
         checkArgument(!bsn.trim().isEmpty(), "Bundle Symbolic Name cannot be empty");
-        checkArgument(!fileName.trim().isEmpty(), "File Name cannot be empty");
         checkArgument(!targetLocation.trim().isEmpty(), "Target Directory cannot be empty");
     }
 
@@ -150,7 +149,11 @@ public final class FatJarBuilder {
 
     private void moveToTargetDirectory() throws IOException {
         createTargetDirectory();
-        final File oldFile = FileUtils.getFile(sourceLocation + separator + bsn + "-0.0.0.jar");
+        final String name = bsn + "-0.0.0.jar";
+        if (fileName.isEmpty()) {
+            fileName = name;
+        }
+        final File oldFile = FileUtils.getFile(sourceLocation + separator + name);
         final File newFile = FileUtils.getFile(targetLocation + separator + fileName);
         Files.move(Paths.get(oldFile.toURI()), Paths.get(newFile.toURI()), ATOMIC_MOVE);
     }
