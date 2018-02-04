@@ -1,3 +1,11 @@
+<!--  
+ Copyright (c) 2018 Amit Kumar Mondal
+  
+  All rights reserved. This program and the accompanying materials 
+  are made available under the terms of the Eclipse Public License v1.0 
+  which accompanies this distribution, and is available at 
+  http://www.eclipse.org/legal/epl-v10.html 
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -5,7 +13,16 @@
 	<artifactId>fatjar-maven-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>maven-fatjar-plugin Maven Mojo</name>
+	<name>FatJAR Maven Mojo</name>
+	<description>
+	This maven plugin is responsible to create a Fat JAR bundle containing all the dependencies 
+	specified in a POM file. Sometimes users need to unpack specific dependency (eq. zip, tar etc) 
+	before packing the dependency as this dependency could contain other jar files. The primary 
+	motive is to collect all the dependencies including the plain jar dependencies and the other 
+	jar dependencies that reside in other dependency (eq. zip, tar etc). Apart from this, it could 
+	also update the versions of the specified dependencies before wrapping in a big fat JAR bundle. 
+	This internally uses bnd to wrap all the dependencies in a single fat JAR.
+	</description>
 	<developers>
 		<developer>
 			<name>Amit Kumar Mondal</name>
@@ -15,12 +32,39 @@
 		</developer>
 	</developers>
 
+	<licenses>
+		<license>
+			<name>Eclipse Public License - v 1.0</name>
+			<url>https://www.eclipse.org/legal/epl-v10.html</url>
+		</license>
+	</licenses>
+
+	<distributionManagement>
+		<repository>
+			<id>oss.sonatype.org</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+		<snapshotRepository>
+			<id>oss.sonatype.org</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+	<scm>
+		<connection>scm:git:git@github.com:amitjoy/fatjar-maven-plugin.git</connection>
+		<developerConnection>scm:git:git@github.com:amitjoy/fatjar-maven-plugin.git</developerConnection>
+		<url>git@github.com:amitjoy/fatjar-maven-plugin.git</url>
+	</scm>
+
 	<properties>
 		<project.java.version>1.8</project.java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<compiler.plugin.version>3.7.0</compiler.plugin.version>
+		<maven-source-plugin.version>3.0.1</maven-source-plugin.version>
+		<maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
 		<maven.assembly.plugin.version>3.1.0</maven.assembly.plugin.version>
+		<maven.nexus.staging.plugin.version>1.6.8</maven.nexus.staging.plugin.version>
 		<maven.plugin.plugin.version>3.4</maven.plugin.plugin.version>
 		<guava.version>23.0</guava.version>
 		<invoker.version>3.0.0</invoker.version>
@@ -101,6 +145,19 @@
 				</configuration>
 			</plugin>
 			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>${maven-source-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-plugin-plugin</artifactId>
 				<version>${maven.plugin.plugin.version}</version>
@@ -116,6 +173,33 @@
 					<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
 				</configuration>
 			</plugin>
+			<plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>${maven-deploy-plugin.version}</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+			<plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>${maven.nexus.staging.plugin.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>oss.sonatype.org</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>deploy-to-sonatype</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>deploy</goal>
+                            <goal>release</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 		<resources>
 			<resource>
