@@ -83,6 +83,9 @@ public class FatJarMakerMojo extends AbstractMojo {
         mavenLocation = mavenHome;
         try {
             resolveTargetLocation();
+            resolveBundleSymbolicName();
+            resolveBundleVersion();
+
             createSourceDirectory();
             storeConfugurationParameters();
             MavenVersionsUpdater
@@ -96,7 +99,7 @@ public class FatJarMakerMojo extends AbstractMojo {
     }
 
     private void resolveTargetLocation() throws IOException {
-        targetDirectory = resolveProperty();
+        targetDirectory = resolveProperty(targetDirectory);
         File file = new File(targetDirectory);
         if (!file.isAbsolute()) {
             file = new File(mavenProject.getBasedir(), targetDirectory);
@@ -104,15 +107,23 @@ public class FatJarMakerMojo extends AbstractMojo {
         targetDirectory = file.getCanonicalPath();
     }
 
-    private String resolveProperty() {
+    private void resolveBundleSymbolicName() {
+        bundleSymbolicName = resolveProperty(bundleSymbolicName);
+    }
+
+    private void resolveBundleVersion() {
+        bundleVersion = resolveProperty(bundleVersion);
+    }
+
+    private String resolveProperty(final String instance) {
         checkArgument(!targetDirectory.trim().isEmpty(), "Target Directory cannot be empty");
 
-        if (targetDirectory.indexOf('$') == -1) {
-            return targetDirectory;
+        if (instance.indexOf('$') == -1) {
+            return instance;
         }
         final Properties properties = mavenProject.getProperties();
         final Map<String, String> props = Maps.fromProperties(properties);
-        final String parsedProperty = targetDirectory.substring(2, targetDirectory.length() - 1);
+        final String parsedProperty = instance.substring(2, instance.length() - 1);
         return props.get(parsedProperty);
     }
 
