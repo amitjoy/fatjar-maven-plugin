@@ -42,7 +42,7 @@ This project is licensed under EPL-1.0 [![License](http://img.shields.io/badge/l
 <plugin>
   <groupId>com.amitinside</groupId>
   <artifactId>fatjar-maven-plugin</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.1</version>
   <configuration>
     <bundleSymbolicName>${bundle.symbolic.name}</bundleSymbolicName>
     <bundleVersion>${bundle.version}</bundleVersion>
@@ -55,5 +55,9 @@ This project is licensed under EPL-1.0 [![License](http://img.shields.io/badge/l
     <updateDependencyVersions>true</updateDependencyVersions>
   </configuration>
 </plugin>
+```
+
+```
+mvn fatjar:makefat
 ```
 -----------------------------------------------------------------
