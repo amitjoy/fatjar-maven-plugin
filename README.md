@@ -7,6 +7,8 @@ This maven plugin is responsible to create a Fat JAR bundle containing all the d
 	jar dependencies that reside in other dependency (eq. zip, tar etc). Apart from this, it could 
 	also update the versions of the specified dependencies before wrapping in a big fat JAR bundle. 
 	This internally uses bnd to wrap all the dependencies in a single fat JAR.
+	
+> The idea behind was to primarily update all the mentioned dependency versions in the POM and pack them (Plain JARs + JARs contained in non-JARs) in a big fat JAR.
 
 -----------------------------------------------------------------
 
@@ -14,8 +16,8 @@ This maven plugin is responsible to create a Fat JAR bundle containing all the d
 
 1. Update all POM dependencies automatically based on available updates from the POM specified repositories
 2. Unpack the dependencies containing JARs (e.g zip, tar, gz etc)
-3. Packing all POM specified JAR dependencies together with the JARs contained in other non-JAR archives (e.g zip, tar, gz etc)
-4. Pack all JARs to a Fat JAR OSGi Bundle
+3. Pack all POM specified JAR dependencies together with the JARs contained in other non-JAR archives (e.g zip, tar, tar.gz etc)
+4. Pack all these JARs to a Fat JAR OSGi Bundle by copying binaries and exporting them
 5. Copy the Fat JAR Bundle to user-specific location
 
 -----------------------------------------------------------------
@@ -30,7 +32,7 @@ Want to contribute? Great! Check out [Contribution Guide](https://github.com/ami
 
 **Import as Maven Project**
 
-Import all the projects as Existing Maven Projects (`File -> Import -> Maven -> Existing Maven Projects`)
+Import the project as Existing Maven Projects (`File -> Import -> Maven -> Existing Maven Projects`)
 
 ----------------------------------------------------------------
 
