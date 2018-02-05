@@ -8,14 +8,14 @@ This maven plugin is responsible to create a Fat JAR bundle containing all the d
 	also update the versions of the specified dependencies before wrapping in a big fat JAR bundle. 
 	This internally uses bnd to wrap all the dependencies in a single fat JAR.
 	
-> The idea behind was to primarily update all the mentioned dependency versions in the POM and pack them (Plain JARs + JARs contained in non-JARs) in a big fat JAR.
+<i>The idea behind was to primarily update all the mentioned dependency versions in the POM and pack them (Plain JARs + JARs contained in non-JARs) in a big fat JAR.</i>
 
 -----------------------------------------------------------------
 
 ## Primary Functions
 
 1. Update all POM dependencies automatically based on available updates from the POM specified repositories
-2. Unpack the dependencies containing JARs (e.g zip, tar, gz etc)
+2. Unpack the dependencies containing JARs (e.g zip, tar, tar.gz, any other archive etc)
 3. Pack all POM specified JAR dependencies together with the JARs contained in other non-JAR archives (e.g zip, tar, tar.gz etc)
 4. Pack all these JARs to a Fat JAR OSGi Bundle by copying binaries and exporting them
 5. Copy the Fat JAR Bundle to user-specific location
