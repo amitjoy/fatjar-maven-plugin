@@ -54,15 +54,15 @@ This project is licensed under EPL-1.0 [![License](http://img.shields.io/badge/l
   <artifactId>fatjar-maven-plugin</artifactId>
   <version>0.0.1</version>
   <configuration>
-    <bundleSymbolicName>${bundle.symbolic.name}</bundleSymbolicName>
-    <bundleVersion>${bundle.version}</bundleVersion>
-    <extensionsToUnarchive>
+    <bundleSymbolicName>${bundle.symbolic.name}</bundleSymbolicName> <!-- mandatory -->
+    <bundleVersion>${bundle.version}</bundleVersion>                 <!-- mandatory -->
+    <extensionsToUnarchive>                                          <!-- mandatory -->
         <param>zip</param>
         <param>tar</param>
     </extensionsToUnarchive>
-    <targetDirectory>${file.store.location}</targetDirectory>
-    <targetFilename>com.mybundle.mybsn.fat.jar</targetFilename>
-    <updateDependencyVersions>true</updateDependencyVersions>
+    <targetDirectory>${file.store.location}</targetDirectory>        <!-- mandatory -->
+    <targetFilename>com.mybundle.mybsn.fat.jar</targetFilename>      <!-- optional default - bsn-version.jar -->
+    <updateDependencyVersions>true</updateDependencyVersions>        <!-- optional default - true -->
   </configuration>
 </plugin>
 ```
