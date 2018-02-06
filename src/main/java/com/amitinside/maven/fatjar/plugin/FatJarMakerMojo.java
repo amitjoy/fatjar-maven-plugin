@@ -69,6 +69,11 @@ public class FatJarMakerMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException, MojoFailureException {
         String mavenHome = getMavenEnvironmentVariable();
         if (mavenHome == null) {
+            try {
+                resolveMavenLocation();
+            } catch (final IOException e) {
+                throw new MojoFailureException(e.getMessage());
+            }
             mavenHome = mavenLocation;
             if (mavenHome.trim().isEmpty()) {
                 //@formatter:off
@@ -85,6 +90,8 @@ public class FatJarMakerMojo extends AbstractMojo {
             resolveTargetLocation();
             resolveBundleSymbolicName();
             resolveBundleVersion();
+            resolveTargetFilename();
+            resolveUpdateDependencyVersion();
 
             createSourceDirectory();
             storeConfugurationParameters();
@@ -104,6 +111,17 @@ public class FatJarMakerMojo extends AbstractMojo {
         if (!file.isAbsolute()) {
             file = new File(mavenProject.getBasedir(), targetDirectory);
         }
+        // TODO add more variable support
+        targetDirectory = file.getCanonicalPath();
+    }
+
+    private void resolveMavenLocation() throws IOException {
+        mavenLocation = resolveProperty(mavenLocation);
+        // TODO add more variable support
+        File file = new File(targetDirectory);
+        if (!file.isAbsolute()) {
+            file = new File(mavenProject.getBasedir(), targetDirectory);
+        }
         targetDirectory = file.getCanonicalPath();
     }
 
@@ -113,6 +131,14 @@ public class FatJarMakerMojo extends AbstractMojo {
 
     private void resolveBundleVersion() {
         bundleVersion = resolveProperty(bundleVersion);
+    }
+
+    private void resolveTargetFilename() {
+        targetFilename = resolveProperty(targetFilename);
+    }
+
+    private void resolveUpdateDependencyVersion() {
+        updateDependencyVersions = resolveProperty(updateDependencyVersions);
     }
 
     private String resolveProperty(final String instance) {
