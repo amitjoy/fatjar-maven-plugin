@@ -65,6 +65,7 @@ This project is licensed under EPL-1.0 [![License](http://img.shields.io/badge/l
     <targetDirectory>${file.store.location}</targetDirectory>        <!-- mandatory -->
     <targetFilename>com.mybundle.mybsn.fat.jar</targetFilename>      <!-- optional default - bsn-version.jar -->
     <updateDependencyVersions>true</updateDependencyVersions>        <!-- optional default - true -->
+    <mavenLocation>/a/b/maven</mavenLocation>                        <!-- optional default environment variable -->
   </configuration>
 </plugin>
 ```
