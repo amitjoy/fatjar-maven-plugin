@@ -10,6 +10,7 @@
 package com.amitinside.maven.fatjar.plugin;
 
 import static com.amitinside.maven.fatjar.plugin.Configurer.Params.*;
+import static com.amitinside.maven.fatjar.plugin.util.MojoHelper.*;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import java.io.File;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.BuildPluginManager;
@@ -106,23 +108,29 @@ public class FatJarMakerMojo extends AbstractMojo {
     }
 
     private void resolveTargetLocation() throws IOException {
-        targetDirectory = resolveProperty(targetDirectory);
-        File file = new File(targetDirectory);
-        if (!file.isAbsolute()) {
-            file = new File(mavenProject.getBasedir(), targetDirectory);
-        }
-        // TODO add more variable support
-        targetDirectory = file.getCanonicalPath();
+        targetDirectory = resolveLocation(targetDirectory).getCanonicalPath();
     }
 
     private void resolveMavenLocation() throws IOException {
-        mavenLocation = resolveProperty(mavenLocation);
-        // TODO add more variable support
-        File file = new File(targetDirectory);
-        if (!file.isAbsolute()) {
-            file = new File(mavenProject.getBasedir(), targetDirectory);
+        mavenLocation = resolveLocation(mavenLocation).getCanonicalPath();
+    }
+
+    private File resolveLocation(String location) {
+        final String userHomeVar = "${user.home}";
+        final String baseDirVar = "${project.basedir}";
+        File file = null;
+        if (location.contains(userHomeVar)) {
+            location = StringUtils.replace(location, baseDirVar, replaceVariable(mavenProject, userHomeVar));
         }
-        targetDirectory = file.getCanonicalPath();
+        if (location.contains(baseDirVar)) {
+            location = StringUtils.replace(location, baseDirVar, replaceVariable(mavenProject, baseDirVar));
+        }
+        file = new File(location);
+        if (!file.isAbsolute()) {
+            file = new File(getUserHome(), location);
+        }
+        return file;
+
     }
 
     private void resolveBundleSymbolicName() {
@@ -171,19 +179,4 @@ public class FatJarMakerMojo extends AbstractMojo {
         configurer.put(UPDATE_VERSION, updateDependencyVersions);
     }
 
-    private static String getMavenEnvironmentVariable() {
-        if (System.getenv("M2_HOME") != null) {
-            return System.getenv("M2_HOME");
-        } else if (System.getenv("MAVEN_HOME") != null) {
-            return System.getenv("MAVEN_HOME");
-        } else if (System.getenv("M3_HOME") != null) {
-            return System.getenv("M3_HOME");
-        } else if (System.getenv("MVN_HOME") != null) {
-            return System.getenv("MVN_HOME");
-        } else if (System.getProperty("maven.home") != null) {
-            return System.getProperty("maven.home");
-        } else {
-            return null;
-        }
-    }
 }

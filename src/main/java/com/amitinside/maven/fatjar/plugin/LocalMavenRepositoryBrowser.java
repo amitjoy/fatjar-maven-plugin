@@ -10,6 +10,7 @@
 package com.amitinside.maven.fatjar.plugin;
 
 import static com.amitinside.maven.fatjar.plugin.Configurer.Params.*;
+import static com.amitinside.maven.fatjar.plugin.util.MojoHelper.getUserHome;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.io.File.separator;
 import static org.apache.commons.io.FileUtils.copyFileToDirectory;
@@ -70,7 +71,7 @@ public final class LocalMavenRepositoryBrowser {
         final String type = dependency.getType();
         final String version = getVersion(pom, versionProperty);
 
-        final String home = System.getProperty("user.home");
+        final String home = getUserHome();
 
         final StringBuilder locationBuilder = new StringBuilder();
         locationBuilder.append(home);
