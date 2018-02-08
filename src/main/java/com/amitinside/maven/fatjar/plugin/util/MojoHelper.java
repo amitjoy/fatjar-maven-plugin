@@ -1,6 +1,11 @@
 package com.amitinside.maven.fatjar.plugin.util;
 
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.maven.project.MavenProject;
+
+import com.google.common.collect.Maps;
 
 public final class MojoHelper {
 
@@ -37,6 +42,15 @@ public final class MojoHelper {
                 return project.getBasedir().getPath();
         }
         return null;
+    }
+
+    public static String getVersion(final Properties properties, final String property) {
+        if (property.indexOf('$') == -1) {
+            return property;
+        }
+        final Map<String, String> props = Maps.fromProperties(properties);
+        final String parsedProperty = property.substring(2, property.length() - 1);
+        return props.get(parsedProperty);
     }
 
 }

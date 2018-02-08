@@ -11,12 +11,9 @@ package com.amitinside.maven.fatjar.plugin;
 
 import static com.amitinside.maven.fatjar.plugin.Configurer.Params.*;
 import static com.amitinside.maven.fatjar.plugin.util.MojoHelper.*;
-import static com.google.common.base.Preconditions.checkArgument;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.execution.MavenSession;
@@ -29,8 +26,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import com.amitinside.maven.fatjar.plugin.util.MojoHelper;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 @Mojo(name = "makefat")
 public class FatJarMakerMojo extends AbstractMojo {
@@ -134,31 +131,19 @@ public class FatJarMakerMojo extends AbstractMojo {
     }
 
     private void resolveBundleSymbolicName() {
-        bundleSymbolicName = resolveProperty(bundleSymbolicName);
+        bundleSymbolicName = MojoHelper.getVersion(mavenProject.getProperties(), bundleSymbolicName);
     }
 
     private void resolveBundleVersion() {
-        bundleVersion = resolveProperty(bundleVersion);
+        bundleVersion = MojoHelper.getVersion(mavenProject.getProperties(), bundleVersion);
     }
 
     private void resolveTargetFilename() {
-        targetFilename = resolveProperty(targetFilename);
+        targetFilename = MojoHelper.getVersion(mavenProject.getProperties(), targetFilename);
     }
 
     private void resolveUpdateDependencyVersion() {
-        updateDependencyVersions = resolveProperty(updateDependencyVersions);
-    }
-
-    private String resolveProperty(final String instance) {
-        checkArgument(!targetDirectory.trim().isEmpty(), "Target Directory cannot be empty");
-
-        if (instance.indexOf('$') == -1) {
-            return instance;
-        }
-        final Properties properties = mavenProject.getProperties();
-        final Map<String, String> props = Maps.fromProperties(properties);
-        final String parsedProperty = instance.substring(2, instance.length() - 1);
-        return props.get(parsedProperty);
+        updateDependencyVersions = MojoHelper.getVersion(mavenProject.getProperties(), updateDependencyVersions);
     }
 
     private void createSourceDirectory() {

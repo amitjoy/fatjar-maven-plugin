@@ -139,7 +139,12 @@ public final class FatJarBuilder {
                 builder.setProperty(Constants.BUNDLE_VERSION, version);
             }
             if (fileName.isEmpty()) {
-                fileName = bsn + "-" + version + ".jar";
+                final StringBuilder filenameBuilder = new StringBuilder();
+                filenameBuilder.append(bsn);
+                filenameBuilder.append('-');
+                filenameBuilder.append(version);
+                filenameBuilder.append(".jar");
+                fileName = filenameBuilder.toString();
             }
             final Jar bndJar = builder.build();
             bndJar.write(targetLocation + separator + fileName);

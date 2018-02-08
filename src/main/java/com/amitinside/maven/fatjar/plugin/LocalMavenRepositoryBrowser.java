@@ -20,15 +20,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
-import com.google.common.collect.Maps;
+import com.amitinside.maven.fatjar.plugin.util.MojoHelper;
 
 public final class LocalMavenRepositoryBrowser {
 
@@ -69,7 +67,7 @@ public final class LocalMavenRepositoryBrowser {
         final String artifactId = dependency.getArtifactId();
         final String versionProperty = dependency.getVersion();
         final String type = dependency.getType();
-        final String version = getVersion(pom, versionProperty);
+        final String version = MojoHelper.getVersion(pom.getProperties(), versionProperty);
 
         final String home = getUserHome();
 
@@ -96,16 +94,6 @@ public final class LocalMavenRepositoryBrowser {
         locationBuilder.append(type);
 
         return new File(locationBuilder.toString());
-    }
-
-    private static String getVersion(final Model pom, final String property) {
-        if (property.indexOf('$') == -1) {
-            return property;
-        }
-        final Properties properties = pom.getProperties();
-        final Map<String, String> props = Maps.fromProperties(properties);
-        final String parsedProperty = property.substring(2, property.length() - 1);
-        return props.get(parsedProperty);
     }
 
 }
