@@ -100,6 +100,26 @@ public final class MavenVersionsUpdater {
         return artifactItems.toArray(new Element[artifactItems.size()]);
     }
 
+    private void executeVersionsMojo() throws MojoExecutionException {
+        //@formatter:off
+        executeMojo(
+                plugin(
+                        groupId("org.codehaus.mojo"),
+                        artifactId("versions-maven-plugin"),
+                        version("2.5")
+                        ),
+                goal("update-properties"),
+                configuration(
+                        element(name("generateBackupPoms"), "false")),
+                executionEnvironment(
+                        mavenProject,
+                        mavenSession,
+                        pluginManager
+                        )
+                );
+        //@formatter:on
+    }
+
     private void executeDependencyMojo() throws MojoExecutionException {
         //@formatter:off
         executeMojo(
@@ -118,26 +138,6 @@ public final class MavenVersionsUpdater {
                     pluginManager
                 )
             );
-        //@formatter:on
-    }
-
-    private void executeVersionsMojo() throws MojoExecutionException {
-        //@formatter:off
-        executeMojo(
-                plugin(
-                        groupId("org.codehaus.mojo"),
-                        artifactId("versions-maven-plugin"),
-                        version("2.5")
-                        ),
-                goal("update-properties"),
-                configuration(
-                        element(name("generateBackupPoms"), "false")),
-                executionEnvironment(
-                        mavenProject,
-                        mavenSession,
-                        pluginManager
-                        )
-                );
         //@formatter:on
     }
 
