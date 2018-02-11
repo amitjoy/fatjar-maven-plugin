@@ -93,7 +93,7 @@ public final class MavenVersionsUpdater {
         return elements.toArray(new Element[elements.size()]);
     }
 
-    private Element[] convertToArtifactItems() {
+    private Element[] convertToArtefactItems() {
         final List<Element> artifactItems = Lists.newArrayList();
         for (final Dependency dep : getArtefactsToUnarchive()) {
             final Element artifactItem = element(name("artifactItem"), convertToElement(dep));
@@ -132,7 +132,7 @@ public final class MavenVersionsUpdater {
                 ),
                 goal("copy"),
                 configuration(
-                    element(name("artifactItems"), convertToArtifactItems())
+                    element(name("artifactItems"), convertToArtefactItems())
                 ),
                 executionEnvironment(
                     mavenProject,
