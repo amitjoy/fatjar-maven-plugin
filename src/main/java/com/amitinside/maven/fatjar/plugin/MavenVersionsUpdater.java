@@ -27,6 +27,8 @@ import com.google.common.collect.Lists;
 
 public final class MavenVersionsUpdater {
 
+    private static final String DEPENDENCY_PLUGIN_VERSION = "3.0.2";
+    private static final String VERSIONS_PLUGIN_VERSION = "2.5";
     private final String mavenHome;
     private final boolean shouldUpdateVersions;
     private final MavenProject mavenProject;
@@ -106,7 +108,7 @@ public final class MavenVersionsUpdater {
                 plugin(
                         groupId("org.codehaus.mojo"),
                         artifactId("versions-maven-plugin"),
-                        version("2.5")
+                        version(VERSIONS_PLUGIN_VERSION)
                         ),
                 goal("update-properties"),
                 configuration(
@@ -126,7 +128,7 @@ public final class MavenVersionsUpdater {
                 plugin(
                     groupId("org.apache.maven.plugins"),
                     artifactId("maven-dependency-plugin"),
-                    version("3.0.2")
+                    version(DEPENDENCY_PLUGIN_VERSION)
                 ),
                 goal("copy"),
                 configuration(
