@@ -44,11 +44,11 @@ public final class MojoHelper {
 
     public static String replaceVariable(final MavenProject project, String variable) {
         variable = variable.substring(2, variable.length() - 1);
-        switch (variable) {
-            case "${user.home}":
-                return getUserHome();
-            case "${project.basedir}":
-                return project.getBasedir().getPath();
+        if ("${user.home}".equalsIgnoreCase(variable)) {
+            return getUserHome();
+        }
+        if ("${project.basedir}".equalsIgnoreCase(variable)) {
+            return project.getBasedir().getPath();
         }
         return null;
     }
