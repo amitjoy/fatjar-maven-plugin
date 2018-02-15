@@ -115,19 +115,17 @@ public class FatJarMakerMojo extends AbstractMojo {
     private File resolveLocation(String location) {
         final String userHomeVar = "${user.home}";
         final String baseDirVar = "${project.basedir}";
-        File file = null;
         if (location.contains(userHomeVar)) {
             location = StringUtils.replace(location, baseDirVar, replaceVariable(mavenProject, userHomeVar));
         }
         if (location.contains(baseDirVar)) {
             location = StringUtils.replace(location, baseDirVar, replaceVariable(mavenProject, baseDirVar));
         }
-        file = new File(location);
+        File file = new File(location);
         if (!file.isAbsolute()) {
             file = new File(getUserHome(), location);
         }
         return file;
-
     }
 
     private void resolveBundleSymbolicName() {
