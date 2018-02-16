@@ -41,7 +41,7 @@ public class FatJarMakerMojo extends AbstractMojo {
     @Component
     private BuildPluginManager pluginManager;
 
-    @Parameter(required = false)
+    @Parameter
     private String mavenLocation;
 
     @Parameter(required = true)
@@ -50,16 +50,16 @@ public class FatJarMakerMojo extends AbstractMojo {
     @Parameter(required = true)
     private String bundleVersion;
 
-    @Parameter(required = false)
+    @Parameter
     private String targetFilename;
 
-    @Parameter(required = false)
+    @Parameter
     private String[] extensionsToUnarchive;
 
     @Parameter(required = true)
     private String targetDirectory;
 
-    @Parameter(required = false, defaultValue = "true")
+    @Parameter(defaultValue = "true")
     private String updateDependencyVersions;
 
     private File sourceDirectory;
