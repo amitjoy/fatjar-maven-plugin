@@ -9,7 +9,7 @@
  *******************************************************************************/
 package com.amitinside.maven.fatjar.plugin.util;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.*;
 
 import java.util.Map;
 import java.util.Properties;
@@ -47,6 +47,7 @@ public final class MojoHelper {
     public static String replaceVariable(final MavenProject project, String variable) {
         checkNotNull(project, "Maven Project instance cannot be null");
         checkNotNull(variable, "Variable cannot be null");
+        checkArgument(!variable.isEmpty(), "Variable cannot be empty");
 
         variable = variable.substring(2, variable.length() - 1);
         if ("${user.home}".equalsIgnoreCase(variable)) {
