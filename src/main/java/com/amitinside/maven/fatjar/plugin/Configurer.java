@@ -26,6 +26,7 @@ public enum Configurer {
         SOURCE_DIRECTORY,
         TARGET_FILENAME,
         TARGET_DIRECTORY,
+        BUNDLE_RESOLVABLE,
         UPDATE_VERSION;
     }
 

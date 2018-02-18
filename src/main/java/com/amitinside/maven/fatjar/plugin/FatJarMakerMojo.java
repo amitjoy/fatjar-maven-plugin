@@ -62,6 +62,9 @@ public class FatJarMakerMojo extends AbstractMojo {
     @Parameter(defaultValue = "true")
     private String updateDependencyVersions;
 
+    @Parameter(defaultValue = "false")
+    private String resolvable;
+
     private File sourceDirectory;
 
     @Override
@@ -91,6 +94,7 @@ public class FatJarMakerMojo extends AbstractMojo {
             resolveBundleVersion();
             resolveTargetFilename();
             resolveUpdateDependencyVersion();
+            resolveBundleResolvableVersion();
 
             createSourceDirectory();
             storeConfugurationParameters();
@@ -144,6 +148,10 @@ public class FatJarMakerMojo extends AbstractMojo {
         updateDependencyVersions = MojoHelper.getVersion(mavenProject.getProperties(), updateDependencyVersions);
     }
 
+    private void resolveBundleResolvableVersion() {
+        resolvable = MojoHelper.getVersion(mavenProject.getProperties(), resolvable);
+    }
+
     private void createSourceDirectory() {
         final String userDir = System.getProperty("user.dir");
         sourceDirectory = new File(userDir + File.separator + "fatjar_build");
@@ -155,6 +163,7 @@ public class FatJarMakerMojo extends AbstractMojo {
         configurer.put(POM_LOCATION, mavenProject.getFile().getPath());
         configurer.put(BUNDLE_SYMBOLIC_NAME, bundleSymbolicName);
         configurer.put(BUNDLE_VERSION, bundleVersion);
+        configurer.put(BUNDLE_RESOLVABLE, resolvable);
         configurer.put(TARGET_FILENAME, targetFilename);
         configurer.put(EXTENSION_TO_UNARCHIVE, extensionsToUnarchive);
         configurer.put(SOURCE_DIRECTORY, sourceDirectory);

@@ -49,6 +49,7 @@ public final class FatJarBuilder {
     private final String[] extensionsToUnarchive;
     private final String targetLocation;
     private final MavenProject mavenProject;
+    private final boolean shouldBundleResolve;
     private String fileName;
 
     private FatJarBuilder(final MavenProject mavenProject) {
@@ -60,6 +61,8 @@ public final class FatJarBuilder {
         targetLocation = Configurer.INSTANCE.getAsString(Params.TARGET_DIRECTORY);
         bndFile = sourceLocation + separator + "temp.bnd";
         this.mavenProject = mavenProject;
+        final String shouldResolve = Configurer.INSTANCE.getAsString(BUNDLE_RESOLVABLE);
+        shouldBundleResolve = Boolean.valueOf(shouldResolve);
 
         checkArgument(!bsn.trim().isEmpty(), "Bundle Symbolic Name cannot be empty");
         checkArgument(!targetLocation.trim().isEmpty(), "Target Directory cannot be empty");
@@ -109,13 +112,18 @@ public final class FatJarBuilder {
             final StringBuilder contentBuilder = new StringBuilder();
             contentBuilder.append("Bundle-SymbolicName: ");
             contentBuilder.append(bsn);
-            contentBuilder.append("\n\n");
+            contentBuilder.append(System.lineSeparator());
             contentBuilder.append("ver: 1.0.0");
-            contentBuilder.append("\n\n");
+            contentBuilder.append(System.lineSeparator());
             contentBuilder.append("-classpath: ");
             contentBuilder.append(classpath);
-            contentBuilder.append("\n\n");
+            contentBuilder.append(System.lineSeparator());
             contentBuilder.append("Export-Package: *;version=${ver}");
+            contentBuilder.append(System.lineSeparator());
+            if (!shouldBundleResolve) {
+                contentBuilder.append(
+                        "Require-Capability: osgi.unresolvable; filter:=\"(&(must.not.resolve=*)(!(must.not.resolve=*)))\"");
+            }
 
             try (final Writer writer = new BufferedWriter(
                     new OutputStreamWriter(new FileOutputStream(bndFile), UTF_8))) {
