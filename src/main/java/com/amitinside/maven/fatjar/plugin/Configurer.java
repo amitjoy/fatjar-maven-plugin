@@ -9,6 +9,8 @@
  *******************************************************************************/
 package com.amitinside.maven.fatjar.plugin;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.EnumMap;
 
 import com.google.common.collect.Maps;
@@ -33,6 +35,9 @@ public enum Configurer {
     private final EnumMap<Params, Object> configuration = Maps.newEnumMap(Params.class);
 
     public void put(final Params key, final Object value) {
+        checkNotNull(key, "Key cannot be null");
+        checkNotNull(value, "Value cannot be null");
+
         configuration.put(key, value);
     }
 
