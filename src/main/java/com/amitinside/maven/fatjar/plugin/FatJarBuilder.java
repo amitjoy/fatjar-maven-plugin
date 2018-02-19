@@ -154,8 +154,14 @@ public final class FatJarBuilder {
                 filenameBuilder.append(".jar");
                 fileName = filenameBuilder.toString();
             }
+
+            final StringBuilder jarFile = new StringBuilder();
+            jarFile.append(targetLocation);
+            jarFile.append(separator);
+            jarFile.append(fileName);
+
             final Jar bndJar = builder.build();
-            bndJar.write(targetLocation + separator + fileName);
+            bndJar.write(jarFile.toString());
         }
     }
 
