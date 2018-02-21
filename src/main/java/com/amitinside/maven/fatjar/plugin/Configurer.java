@@ -41,6 +41,13 @@ public enum Configurer {
         configuration.put(key, value);
     }
 
+    /**
+     * Returns the associated value as string
+     * 
+     * @param key the key to check
+     * @return the associated value if found or empty
+     * @throws NullPointerException if the key is {@code null}
+     */
     public String getAsString(final Params key) {
         checkNotNull(key, "Key cannot be null");
 
