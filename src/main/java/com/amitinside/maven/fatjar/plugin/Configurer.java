@@ -42,6 +42,8 @@ public enum Configurer {
     }
 
     public String getAsString(final Params key) {
+        checkNotNull(key, "Key cannot be null");
+
         final Object object = configuration.get(key);
         if (object instanceof String) {
             return String.valueOf(object);
