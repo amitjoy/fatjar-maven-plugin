@@ -10,7 +10,7 @@ This maven plugin is responsible to create a Fat JAR bundle containing all the d
 	
 <i>The idea behind was to primarily update all the mentioned dependency versions in the POM and pack them (Plain JARs + JARs contained in non-JARs) in a big fat JAR.</i>
 
--------------------------------------------------------------------
+--------------------------------------------------------------------
 
 ## Primary Functions
 
@@ -20,7 +20,7 @@ This maven plugin is responsible to create a Fat JAR bundle containing all the d
 4. Pack all these JARs to a Fat JAR OSGi Bundle by copying binaries and exporting them
 5. Copy the Fat JAR Bundle to user-specific location
 
--------------------------------------------------------------------
+--------------------------------------------------------------------
 
 ### Contribution [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/amitjoy/fatjar-maven-plugin/issues)
 
