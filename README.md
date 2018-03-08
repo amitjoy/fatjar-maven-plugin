@@ -26,7 +26,7 @@ This maven plugin is responsible to create a Fat JAR bundle containing all the d
 
 Want to contribute? Great! Check out [Contribution Guide](https://github.com/amitjoy/fatjar-maven-plugin/blob/master/CONTRIBUTING.md)
 
---------------------------------------------------------------------
+---------------------------------------------------------------------
 
 #### Project Import
 
