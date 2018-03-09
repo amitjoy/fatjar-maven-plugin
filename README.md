@@ -10,7 +10,7 @@ This maven plugin is responsible to create a Fat JAR bundle containing all the d
 	
 <i>The idea behind was to primarily update all the mentioned dependency versions in the POM and pack them (Plain JARs + JARs contained in non-JARs) in a big fat JAR.</i>
 
---------------------------------------------------------------------
+---------------------------------------------------------------------
 
 ## Primary Functions
 
