@@ -1,6 +1,6 @@
 ## Why?
 
-This maven plugin is responsible to create a Fat JAR bundle containing all the dependencies 
+This maven plugin is responsible for creating a Fat JAR bundle containing all the dependencies 
 	specified in a POM file. Sometimes users need to unpack specific dependency (eq. zip, tar etc) 
 	before packing the dependency as this dependency could contain other jar files. The primary 
 	motive is to collect all the dependencies including the plain jar dependencies and the other 
