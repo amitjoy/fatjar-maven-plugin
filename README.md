@@ -12,7 +12,7 @@ This maven plugin is responsible for creating a Fat JAR bundle containing all th
 
 ---------------------------------------------------------------------
 
-## Primary Functions
+## Functions
 
 1. Update all POM dependencies automatically based on available updates from the POM specified repositories
 2. Unpack the dependencies containing JARs (e.g zip, tar, tar.gz, any other archive etc)
