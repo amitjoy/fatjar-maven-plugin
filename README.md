@@ -1,13 +1,7 @@
 ## Why?
 
-This maven plugin is responsible for creating a Fat JAR bundle containing all the dependencies 
-	specified in a POM file. Sometimes users need to unpack specific dependency (eq. zip, tar etc) 
-	before packing the dependency as this dependency could contain other jar files. The primary 
-	motive is to collect all the dependencies including the plain jar dependencies and the other 
-	jar dependencies that reside in other dependency (eq. zip, tar etc). Apart from this, it could 
-	also update the versions of the specified dependencies before wrapping in a big fat JAR bundle. 
-	This internally uses bnd to wrap all the dependencies in a single fat JAR.
-	
+This maven plugin is responsible for creating a Fat JAR bundle containing all the dependencies  specified in a POM file. Sometimes users need to unpack specific dependency (eq. zip, tar etc) before packing the dependency as this dependency could contain other jar files. The primary motive is to collect all the dependencies including the plain jar dependencies and the other jar dependencies that reside in other dependency (eq. zip, tar etc). Apart from this, it could also update the versions of the specified dependencies before wrapping in a big fat JAR bundle. This internally uses bnd to wrap all the dependencies in a single fat JAR.
+
 <i>The idea behind was to primarily update all the mentioned dependency versions in the POM and pack them (Plain JARs + JARs contained in non-JARs) in a big fat JAR.</i>
 
 ---------------------------------------------------------------------
